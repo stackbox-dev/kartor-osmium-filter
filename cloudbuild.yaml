@@ -1,0 +1,28 @@
+timeout: 1800s
+queueTtl: 300s
+images:
+  - "${_IMG}:$COMMIT_SHA"
+  - "${_IMG}:latest"
+substitutions:
+  _IMG: asia-docker.pkg.dev/sbx-ci-cd/private/kartor-osmium-filter
+steps:
+  - id: pull-latest-image
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - "-c"
+      - "docker pull ${_IMG}:latest || exit 0"
+  - id: build-image
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - "-c"
+      - "docker build -t ${_IMG}:$COMMIT_SHA -t ${_IMG}:latest --cache-from ${_IMG}:latest ."
+  - id: push-image
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - "-c"
+      - set -x;
+        docker push ${_IMG}:$COMMIT_SHA;
+        docker push ${_IMG}:latest;
