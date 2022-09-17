@@ -10,4 +10,5 @@ RUN make -j${CONCURRENCY:-$(nproc)}
 FROM ubuntu:20.04
 COPY --from=builder /filter/build/src/osmium-filter /usr/local/bin/
 RUN export DEBIAN_FRONTEND=noninteractive && apt update && \
-    apt install -y osmium-tool
+    apt install -y osmium-tool && \
+    rm -rf /var/lib/apt/lists/*
